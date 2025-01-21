@@ -35,7 +35,9 @@ class PrinterTestScreenState extends State<PrinterTestScreen> {
     }
   }
 
-  Future<void> _connectToPrinter(BluetoothDevice device) async {
+  Future<void> _connectToPrinter(
+    BluetoothDevice device,
+  ) async {
     try {
       await printer.connect(device);
       setState(() {
@@ -43,13 +45,19 @@ class PrinterTestScreenState extends State<PrinterTestScreen> {
         isConnected = true;
       });
     } catch (e) {
-      print('Error connecting to printer: $e');
+      if (mounted) {
+        showAboutDialog(context: context, children: [
+          Text('Error connecting to printer: $e'),
+        ]);
+      }
     }
   }
 
   Future<void> _printSampleReceipt() async {
     if (!isConnected || selectedDevice == null) {
-      print('Printer not connected');
+      showAboutDialog(context: context, children: [
+        Text('Please connect to a printer first.'),
+      ]);
       return;
     }
 
@@ -60,27 +68,92 @@ class PrinterTestScreenState extends State<PrinterTestScreen> {
     );
 
     List<int> bytes = [];
-    bytes += generator.text('Sample Store',
-        styles: PosStyles(align: PosAlign.center, bold: true));
-    bytes += generator.text('123 Main Street',
-        styles: PosStyles(align: PosAlign.center));
-    bytes += generator.text('City, State, ZIP',
-        styles: PosStyles(align: PosAlign.center));
-    bytes += generator.hr();
+
+    // Header
+    bytes += generator.text(
+      '***Simplified tax invoice***',
+      styles: PosStyles(align: PosAlign.center, bold: true),
+    );
+    bytes += generator.text(
+      'VAT: 456788899999',
+      styles: PosStyles(align: PosAlign.center),
+    );
+    // bytes += generator.feed(1);
+
+    // Receipt Info
+    bytes += generator.text(
+      'This is the receipt for a payment of 50 SAR',
+      styles: PosStyles(align: PosAlign.center),
+    );
+    // bytes += generator.feed(1);
+
+    // Invoice Details
     bytes += generator.row([
-      PosColumn(text: 'Item', width: 6),
-      PosColumn(text: 'Qty', width: 3),
-      PosColumn(text: 'Price', width: 3),
+      PosColumn(
+        text: 'Invoice No.\n#7788',
+        width: 6,
+        styles: PosStyles(align: PosAlign.left),
+      ),
+      PosColumn(
+        text: 'Payment To\nشركة معين المدينة لتشغيل الفنادق',
+        width: 6,
+        styles: PosStyles(align: PosAlign.right),
+      ),
     ]);
-    bytes += generator.hr();
-    bytes += generator.text('Thank You!',
-        styles: PosStyles(align: PosAlign.center, bold: true));
-    bytes += generator.cut();
+    bytes += generator.row([
+      PosColumn(
+        text: 'Cashier No.\n#7',
+        width: 6,
+        styles: PosStyles(align: PosAlign.left),
+      ),
+      PosColumn(
+        text: 'Address\n6991, Bada,ah, Madinah\n42311, Saudia Arabia',
+        width: 6,
+        styles: PosStyles(align: PosAlign.right),
+      ),
+    ]);
+
+    // Invoice Date
+    bytes += generator.text(
+      'Invoice date\n3/12/2024 04:07 pm',
+      styles: PosStyles(align: PosAlign.left),
+    );
+    // bytes += generator.feed(1);
+
+    // Price and VAT Details
+    bytes += generator.row([
+      PosColumn(
+        text: 'Price:\n100 SAR',
+        width: 6,
+        styles: PosStyles(align: PosAlign.left),
+      ),
+      PosColumn(
+        text: 'VAT : 15 SAR (15%)',
+        width: 6,
+        styles: PosStyles(align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.text(
+      'Total With Vat: 115 SAR',
+      styles: PosStyles(align: PosAlign.left, bold: true),
+    );
+    // bytes += generator.feed(1);
+
+    // QR Code
+    // bytes += generator
+    //     .qrcode('https://example.com'); // Replace with actual QR code content
+
+    // Cut
+    // bytes += generator.cut();
 
     try {
       await printer.writeBytes(Uint8List.fromList(bytes));
     } catch (e) {
-      print('Error printing receipt: $e');
+      if (mounted) {
+        showAboutDialog(context: context, children: [
+          Text('Error printing receipt: $e'),
+        ]);
+      }
     }
   }
 
