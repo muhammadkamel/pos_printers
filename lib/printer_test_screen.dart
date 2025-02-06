@@ -96,9 +96,12 @@ class PrinterTestScreenState extends State<PrinterTestScreen> {
           styles: PosStyles(align: PosAlign.left),
         ),
         PosColumn(
-          text: 'HOTEL',
+          text: 'إسم الفندق',
           width: 6,
-          styles: PosStyles(align: PosAlign.right),
+          styles: PosStyles(
+            align: PosAlign.right,
+            codeTable: 'CP1256',
+          ),
         ),
       ]);
       bytes += generator.row([
