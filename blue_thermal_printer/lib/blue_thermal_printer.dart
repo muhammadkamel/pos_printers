@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 
@@ -18,17 +17,14 @@ class BlueThermalPrinter {
 
   static const String namespace = 'blue_thermal_printer';
 
-  static const MethodChannel _channel =
-      const MethodChannel('$namespace/methods');
+  static const MethodChannel _channel = MethodChannel('$namespace/methods');
 
-  static const EventChannel _readChannel =
-      const EventChannel('$namespace/read');
+  static const EventChannel _readChannel = EventChannel('$namespace/read');
 
-  static const EventChannel _stateChannel =
-      const EventChannel('$namespace/state');
+  static const EventChannel _stateChannel = EventChannel('$namespace/state');
 
   final StreamController<MethodCall> _methodStreamController =
-      new StreamController.broadcast();
+      StreamController.broadcast();
 
   //Stream<MethodCall> get _methodStream => _methodStreamController.stream;
 
@@ -38,7 +34,7 @@ class BlueThermalPrinter {
     });
   }
 
-  static BlueThermalPrinter _instance = new BlueThermalPrinter._();
+  static final BlueThermalPrinter _instance = BlueThermalPrinter._();
 
   static BlueThermalPrinter get instance => _instance;
 
@@ -181,14 +177,15 @@ class BluetoothDevice {
         address = map['address'];
 
   Map<String, dynamic> toMap() => {
-        'name': this.name,
-        'address': this.address,
-        'type': this.type,
-        'connected': this.connected,
+        'name': name,
+        'address': address,
+        'type': type,
+        'connected': connected,
       };
 
+  @override
   operator ==(Object other) {
-    return other is BluetoothDevice && other.address == this.address;
+    return other is BluetoothDevice && other.address == address;
   }
 
   @override
